@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "./ui/form";
 import { useForm } from "react-hook-form";
-import { Thermometer, Droplet, Leaf, Flask } from "lucide-react";
+import { Thermometer, Droplet, Leaf, Beaker } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface FertilizerFormData {
@@ -31,7 +31,7 @@ export const FertilizerPredictionForm = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Flask className="h-6 w-6 text-blue-600" />
+          <Beaker className="h-6 w-6 text-blue-600" />
           Fertilizer Prediction Form
         </CardTitle>
       </CardHeader>

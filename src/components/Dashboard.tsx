@@ -1,7 +1,7 @@
 
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Leaf, Flask, MapPin } from "lucide-react";
+import { Leaf, Beaker, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Dashboard = () => {
@@ -29,7 +29,7 @@ export const Dashboard = () => {
             <CardContent className="p-6">
               <Link to="/fertilizer-prediction">
                 <Button className="w-full h-32 text-lg justify-center flex-col gap-2" variant="outline">
-                  <Flask className="h-8 w-8 text-blue-600" />
+                  <Beaker className="h-8 w-8 text-blue-600" />
                   <span>Fertilizer Prediction</span>
                 </Button>
               </Link>
@@ -84,7 +84,7 @@ export const Dashboard = () => {
       </div>
       
       <footer className="text-center text-gray-500 text-sm py-4 border-t mt-6">
-        <p>© 2025 Eco Crop Advisor | Designed for Sustainable Agriculture 🌱</p>
+        <p>&copy; 2025 Eco Crop Advisor | Designed for Sustainable Agriculture 🌱</p>
       </footer>
     </div>
   );
