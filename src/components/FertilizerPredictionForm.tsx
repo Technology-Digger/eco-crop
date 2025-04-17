@@ -27,7 +27,7 @@ export const FertilizerPredictionForm = () => {
       nitrogen: 0,
       phosphorus: 0,
       potassium: 0,
-      moisture: 40,
+      moisture: 0, // Changed from 40 to 0
       soilType: "",
       cropType: ""
     }
