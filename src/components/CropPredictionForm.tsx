@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
 import { useForm } from "react-hook-form";
-import { Thermometer, Droplet, Leaf, Zap, Check } from "lucide-react";
+import { Thermometer, Droplet, Leaf, Zap, Check, Cloud as CloudIcon, CloudSun } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface CropFormData {
@@ -139,7 +139,7 @@ export const CropPredictionForm = () => {
               <div className="space-y-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-900/50">
                   <h3 className="text-md font-medium text-blue-800 dark:text-blue-400 mb-2 flex items-center">
-                    <Cloud className="h-4 w-4 mr-2" />
+                    <CloudIcon className="h-4 w-4 mr-2" />
                     Climate Conditions
                   </h3>
                   <FormField
@@ -182,7 +182,7 @@ export const CropPredictionForm = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <DropletIcon className="h-4 w-4" />
+                          <Droplet className="h-4 w-4" />
                           Rainfall (mm)
                         </FormLabel>
                         <FormControl>
