@@ -29,7 +29,7 @@ export const CropPredictionForm = () => {
       potassium: 0,
       temperature: 25,
       humidity: 60,
-      ph: 6.5,
+      ph: 0, // Changed from 6.5 to 0
       rainfall: 200
     }
   });
