@@ -10,8 +10,8 @@ import { SoilNutrientsForm } from "./crop-prediction/SoilNutrientsForm";
 import { ClimateConditionsForm } from "./crop-prediction/ClimateConditionsForm";
 import { PredictionResult } from "./crop-prediction/PredictionResult";
 import { CropFormData } from "./crop-prediction/types";
-import { Input } from "./ui/input";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
+import { supabase } from "@/lib/supabase";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 export const CropPredictionForm = () => {
   const [result, setResult] = useState<string>("");
@@ -22,26 +22,47 @@ export const CropPredictionForm = () => {
       nitrogen: 0,
       phosphorus: 0,
       potassium: 0,
-      temperature: 0, // Changed from 25 to 0
-      humidity: 0,    // Changed from 60 to 0
+      temperature: 0,
+      humidity: 0,
       ph: 0,
-      rainfall: 0     // Changed from 200 to 0
+      rainfall: 0
     }
   });
 
-  const onSubmit = async (data: CropFormData) => {
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setResult("Based on your soil and climate parameters, we recommend planting Rice, Maize or Cotton.");
-      setLoading(false);
+  const predictionMutation = useMutation({
+    mutationFn: async (data: CropFormData) => {
+      const { data: prediction, error } = await supabase
+        .from('crop_predictions')
+        .insert([data])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return prediction;
+    },
+    onSuccess: (data) => {
+      setResult(`Based on your soil and climate parameters, we recommend planting ${data.predicted_crop}.`);
       toast({
         title: "Analysis Complete",
         description: "Your crop prediction has been processed successfully!",
         variant: "default",
       });
-    }, 1500);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to process crop prediction. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setLoading(false);
+    }
+  });
+
+  const onSubmit = async (data: CropFormData) => {
+    setLoading(true);
+    predictionMutation.mutate(data);
   };
 
   return (
