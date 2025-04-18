@@ -1,22 +1,17 @@
 
 import { useState } from "react";
-import { Input } from "./ui/input";
+import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
-import { useForm } from "react-hook-form";
-import { Thermometer, Droplet, Leaf, Zap, Check, Cloud as CloudIcon, CloudSun } from "lucide-react";
+import { Form } from "./ui/form";
+import { Leaf } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
-interface CropFormData {
-  nitrogen: number;
-  phosphorus: number;
-  potassium: number;
-  temperature: number;
-  humidity: number;
-  ph: number;
-  rainfall: number;
-}
+import { SoilNutrientsForm } from "./crop-prediction/SoilNutrientsForm";
+import { ClimateConditionsForm } from "./crop-prediction/ClimateConditionsForm";
+import { PredictionResult } from "./crop-prediction/PredictionResult";
+import { CropFormData } from "./crop-prediction/types";
+import { Input } from "./ui/input";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
 
 export const CropPredictionForm = () => {
   const [result, setResult] = useState<string>("");
@@ -29,16 +24,13 @@ export const CropPredictionForm = () => {
       potassium: 0,
       temperature: 25,
       humidity: 60,
-      ph: 0, // Changed from 6.5 to 0
+      ph: 0,
       rainfall: 200
     }
   });
 
   const onSubmit = async (data: CropFormData) => {
     setLoading(true);
-    
-    // Here we'll integrate with Supabase Edge Function later
-    console.log("Form submitted:", data);
     
     // Simulate API call
     setTimeout(() => {
@@ -65,53 +57,7 @@ export const CropPredictionForm = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900/50">
-                  <h3 className="text-md font-medium text-green-800 dark:text-green-400 mb-2 flex items-center">
-                    <Zap className="h-4 w-4 mr-2" />
-                    Soil Nutrients
-                  </h3>
-                  <FormField
-                    control={form.control}
-                    name="nitrogen"
-                    render={({ field }) => (
-                      <FormItem className="mb-3">
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Nitrogen (N)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="Enter Nitrogen" {...field} className="border-green-200 dark:border-green-900/50 focus-visible:ring-green-500" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="phosphorus"
-                    render={({ field }) => (
-                      <FormItem className="mb-3">
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Phosphorus (P)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="Enter Phosphorus" {...field} className="border-green-200 dark:border-green-900/50 focus-visible:ring-green-500" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="potassium"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Potassium (K)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="Enter Potassium" {...field} className="border-green-200 dark:border-green-900/50 focus-visible:ring-green-500" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <SoilNutrientsForm form={form} />
                 
                 <FormField
                   control={form.control}
@@ -137,62 +83,7 @@ export const CropPredictionForm = () => {
               </div>
               
               <div className="space-y-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-900/50">
-                  <h3 className="text-md font-medium text-blue-800 dark:text-blue-400 mb-2 flex items-center">
-                    <CloudIcon className="h-4 w-4 mr-2" />
-                    Climate Conditions
-                  </h3>
-                  <FormField
-                    control={form.control}
-                    name="temperature"
-                    render={({ field }) => (
-                      <FormItem className="mb-3">
-                        <FormLabel className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <Thermometer className="h-4 w-4" />
-                          Temperature (°C)
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="Enter Temperature" {...field} className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="humidity"
-                    render={({ field }) => (
-                      <FormItem className="mb-3">
-                        <FormLabel className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <Droplet className="h-4 w-4" />
-                          Humidity (%)
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="Enter Humidity" {...field} className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="rainfall"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <Droplet className="h-4 w-4" />
-                          Rainfall (mm)
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="Enter Rainfall" {...field} className="border-blue-200 dark:border-blue-900/50 focus-visible:ring-blue-500" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <ClimateConditionsForm form={form} />
               </div>
             </div>
 
@@ -204,7 +95,7 @@ export const CropPredictionForm = () => {
               {loading ? (
                 <>
                   <span className="animate-pulse">Processing</span>
-                  <Zap className="ml-2 h-4 w-4 animate-pulse" />
+                  <Leaf className="ml-2 h-4 w-4 animate-pulse" />
                 </>
               ) : (
                 <>
@@ -216,17 +107,7 @@ export const CropPredictionForm = () => {
           </form>
         </Form>
 
-        {result && (
-          <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 rounded-lg animate-fade-in">
-            <div className="flex items-start gap-2">
-              <Check className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-green-800 dark:text-green-400 mb-1">Recommendation:</h4>
-                <p className="text-gray-700 dark:text-gray-300">{result}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        <PredictionResult result={result} />
       </CardContent>
     </Card>
   );
