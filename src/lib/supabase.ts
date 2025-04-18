@@ -11,3 +11,21 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key
 // This allows the app to load, even if the connection to Supabase will not work
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+
+// Function to call our Edge Function for crop prediction
+export const predictCrop = async (data: {
+  nitrogen: number;
+  phosphorus: number;
+  potassium: number;
+  temperature: number;
+  humidity: number;
+  ph: number;
+  rainfall: number;
+}) => {
+  const { data: result, error } = await supabase.functions.invoke('crop-prediction', {
+    body: data
+  });
+  
+  if (error) throw error;
+  return result;
+};

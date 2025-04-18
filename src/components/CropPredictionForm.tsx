@@ -11,7 +11,7 @@ import { SoilNutrientsForm } from "./crop-prediction/SoilNutrientsForm";
 import { ClimateConditionsForm } from "./crop-prediction/ClimateConditionsForm";
 import { PredictionResult } from "./crop-prediction/PredictionResult";
 import { CropFormData } from "./crop-prediction/types";
-import { supabase } from "@/lib/supabase";
+import { supabase, predictCrop } from "@/lib/supabase";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 export const CropPredictionForm = () => {
@@ -32,14 +32,21 @@ export const CropPredictionForm = () => {
 
   const predictionMutation = useMutation({
     mutationFn: async (data: CropFormData) => {
-      const { data: prediction, error } = await supabase
+      // First get the prediction from our ML model
+      const prediction = await predictCrop(data);
+      
+      // Then store the data and prediction in Supabase
+      const { data: savedData, error } = await supabase
         .from('crop_predictions')
-        .insert([data])
+        .insert([{
+          ...data,
+          predicted_crop: prediction.crop
+        }])
         .select()
         .single();
 
       if (error) throw error;
-      return prediction;
+      return savedData;
     },
     onSuccess: (data) => {
       setResult(`Based on your soil and climate parameters, we recommend planting ${data.predicted_crop}.`);
