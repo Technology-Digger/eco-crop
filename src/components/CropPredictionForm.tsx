@@ -22,10 +22,10 @@ export const CropPredictionForm = () => {
       nitrogen: 0,
       phosphorus: 0,
       potassium: 0,
-      temperature: 25,
-      humidity: 60,
+      temperature: 0, // Changed from 25 to 0
+      humidity: 0,    // Changed from 60 to 0
       ph: 0,
-      rainfall: 200
+      rainfall: 0     // Changed from 200 to 0
     }
   });
 
@@ -112,3 +112,5 @@ export const CropPredictionForm = () => {
     </Card>
   );
 };
+
+export default CropPredictionForm;
