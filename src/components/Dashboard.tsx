@@ -1,10 +1,65 @@
-
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Leaf, Beaker, MapPin, Info, TrendingUp, Cloud, DropletIcon, LineChart, Sprout, Wind } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Dashboard = () => {
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Error",
+        description: "Geolocation is not supported by your browser",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        // Simulate getting weather data based on coordinates
+        setTimeout(() => {
+          // Sample weather data
+          const temperature = Math.round(20 + Math.random() * 15);
+          const humidity = Math.round(50 + Math.random() * 40);
+          const rainfall = Math.round(50 + Math.random() * 150);
+          
+          toast({
+            title: "Location Data Retrieved",
+            description: `Temperature: ${temperature}°C, Humidity: ${humidity}%, Rainfall: ${rainfall}mm`,
+          });
+
+          // Store the data in localStorage for use in prediction forms
+          localStorage.setItem('climate_data', JSON.stringify({
+            temperature,
+            humidity,
+            rainfall,
+            timestamp: Date.now()
+          }));
+        }, 1000);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        let errorMessage = "Failed to get your location";
+        
+        if (error.code === 1) {
+          errorMessage = "Location access was denied";
+        } else if (error.code === 2) {
+          errorMessage = "Location data unavailable";
+        } else if (error.code === 3) {
+          errorMessage = "Location request timed out";
+        }
+        
+        toast({
+          title: "Location Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    );
+  };
+
   return (
     <div className="grid gap-8">
       <div className="rounded-xl border bg-white dark:bg-gray-900/50 dark:border-gray-800 p-8 shadow-sm transition-colors duration-200">
@@ -63,38 +118,44 @@ export const Dashboard = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 dark:from-amber-900/20 dark:to-amber-900/30 dark:border-amber-800/30 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 to-amber-300/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-6 relative z-10">
-                <Cloud className="h-6 w-6 text-amber-600 dark:text-amber-400 mb-3" />
-                <h3 className="font-medium text-lg mb-2 text-amber-800 dark:text-amber-400">Seasonal Crops</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Different crops thrive in different seasons. Understanding seasonal patterns can maximize your yield.
-                </p>
-              </CardContent>
-            </Card>
+            <Link to="/seasonal-crops">
+              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 dark:from-amber-900/20 dark:to-amber-900/30 dark:border-amber-800/30 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 to-amber-300/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <CardContent className="p-6 relative z-10">
+                  <Cloud className="h-6 w-6 text-amber-600 dark:text-amber-400 mb-3" />
+                  <h3 className="font-medium text-lg mb-2 text-amber-800 dark:text-amber-400">Seasonal Crops</h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Different crops thrive in different seasons. Understanding seasonal patterns can maximize your yield.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
             
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 dark:from-blue-900/20 dark:to-blue-900/30 dark:border-blue-800/30 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-blue-300/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-6 relative z-10">
-                <DropletIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-3" />
-                <h3 className="font-medium text-lg mb-2 text-blue-800 dark:text-blue-400">Soil Health</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Healthy soil leads to healthy crops. Regular testing of NPK levels helps maintain optimal soil conditions.
-                </p>
-              </CardContent>
-            </Card>
+            <Link to="/soil-health">
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 dark:from-blue-900/20 dark:to-blue-900/30 dark:border-blue-800/30 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-blue-300/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <CardContent className="p-6 relative z-10">
+                  <DropletIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-3" />
+                  <h3 className="font-medium text-lg mb-2 text-blue-800 dark:text-blue-400">Soil Health</h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Healthy soil leads to healthy crops. Regular testing of NPK levels helps maintain optimal soil conditions.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
             
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 dark:from-green-900/20 dark:to-green-900/30 dark:border-green-800/30 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-green-300/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-6 relative z-10">
-                <Sprout className="h-6 w-6 text-green-600 dark:text-green-400 mb-3" />
-                <h3 className="font-medium text-lg mb-2 text-green-800 dark:text-green-400">Sustainable Farming</h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Implementing sustainable practices can improve long-term soil health and crop yields.
-                </p>
-              </CardContent>
-            </Card>
+            <Link to="/sustainable-farming">
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 dark:from-green-900/20 dark:to-green-900/30 dark:border-green-800/30 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-green-300/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <CardContent className="p-6 relative z-10">
+                  <Sprout className="h-6 w-6 text-green-600 dark:text-green-400 mb-3" />
+                  <h3 className="font-medium text-lg mb-2 text-green-800 dark:text-green-400">Sustainable Farming</h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Implementing sustainable practices can improve long-term soil health and crop yields.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
         
@@ -106,7 +167,10 @@ export const Dashboard = () => {
           <p className="text-gray-600 dark:text-gray-300 mb-4">
             Enable location services to get more accurate crop and fertilizer recommendations based on your region's climate data and weather patterns.
           </p>
-          <Button className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600">
+          <Button 
+            className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600"
+            onClick={handleGetLocation}
+          >
             <MapPin className="mr-2 h-4 w-4" />
             Enable Geolocation
           </Button>
