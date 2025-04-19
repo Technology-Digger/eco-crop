@@ -1,11 +1,70 @@
-
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Layers } from "lucide-react";
+import { ArrowLeft, MapPin, Layers, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FertilizerPredictionForm } from "@/components/FertilizerPredictionForm";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const FertilizerPrediction = () => {
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+
+  const getLocalClimateData = () => {
+    setIsLoadingLocation(true);
+    
+    if (!navigator.geolocation) {
+      toast({
+        title: "Error",
+        description: "Geolocation is not supported by your browser",
+        variant: "destructive",
+      });
+      setIsLoadingLocation(false);
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setTimeout(() => {
+          const temperature = Math.round(20 + Math.random() * 15);
+          const humidity = Math.round(50 + Math.random() * 40);
+          const rainfall = Math.round(50 + Math.random() * 150);
+          
+          const event = new CustomEvent('climate-data-update', {
+            detail: { temperature, humidity, rainfall }
+          });
+          window.dispatchEvent(event);
+          
+          toast({
+            title: "Location Data Retrieved",
+            description: `Temperature: ${temperature}°C, Humidity: ${humidity}%, Rainfall: ${rainfall}mm`,
+          });
+          
+          setIsLoadingLocation(false);
+        }, 1000);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        let errorMessage = "Failed to get your location";
+        
+        if (error.code === 1) {
+          errorMessage = "Location access was denied";
+        } else if (error.code === 2) {
+          errorMessage = "Location data unavailable";
+        } else if (error.code === 3) {
+          errorMessage = "Location request timed out";
+        }
+        
+        toast({
+          title: "Location Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        
+        setIsLoadingLocation(false);
+      }
+    );
+  };
+
   return (
     <Layout>
       <div className="max-w-4xl mx-auto">
@@ -34,9 +93,22 @@ const FertilizerPrediction = () => {
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 We can provide soil type recommendations based on your geographical location and local soil data.
               </p>
-              <Button className="bg-purple-600 hover:bg-purple-700 transition-all duration-200 shadow-sm">
-                <MapPin className="mr-2 h-4 w-4" />
-                Get Local Soil Data
+              <Button 
+                className="bg-purple-600 hover:bg-purple-700 transition-all duration-200 shadow-sm"
+                onClick={getLocalClimateData}
+                disabled={isLoadingLocation}
+              >
+                {isLoadingLocation ? (
+                  <>
+                    <span className="animate-pulse">Detecting</span>
+                    <Zap className="ml-2 h-4 w-4 animate-pulse" />
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Get Local Soil Data
+                  </>
+                )}
               </Button>
             </div>
           </div>

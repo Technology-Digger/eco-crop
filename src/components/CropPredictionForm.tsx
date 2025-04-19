@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -42,6 +41,19 @@ export const CropPredictionForm = () => {
       rainfall: 0
     }
   });
+
+  useEffect(() => {
+    const handleClimateData = (event: CustomEvent<{ temperature: number; humidity: number; rainfall: number }>) => {
+      form.setValue('temperature', event.detail.temperature);
+      form.setValue('humidity', event.detail.humidity);
+      form.setValue('rainfall', event.detail.rainfall);
+    };
+
+    window.addEventListener('climate-data-update', handleClimateData as EventListener);
+    return () => {
+      window.removeEventListener('climate-data-update', handleClimateData as EventListener);
+    };
+  }, [form]);
 
   // Function to find similarity between input parameters and crop requirements
   const calculateSimilarity = (input: CropFormData, crop: typeof cropDatabase[0]): number => {

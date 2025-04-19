@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -18,47 +18,13 @@ interface FertilizerFormData {
 }
 
 const fertilizerRecommendations = {
-  rice: {
-    clay: { npk: "18-46-0", application: "25-30 kg/ha", advice: "Split application recommended" },
-    sandy: { npk: "16-20-0", application: "35-40 kg/ha", advice: "Add organic matter to improve soil structure" },
-    loamy: { npk: "14-35-14", application: "25-30 kg/ha", advice: "Ideal soil type for rice cultivation" },
-    black: { npk: "17-17-17", application: "20-25 kg/ha", advice: "Monitor iron levels closely" },
-    red: { npk: "20-20-0", application: "30-35 kg/ha", advice: "Add zinc supplements for better yields" }
-  },
-  wheat: {
-    clay: { npk: "20-20-0", application: "30-35 kg/ha", advice: "Apply before sowing" },
-    sandy: { npk: "15-15-15", application: "40-45 kg/ha", advice: "Frequent but smaller applications recommended" },
-    loamy: { npk: "12-32-16", application: "25-30 kg/ha", advice: "Optimal soil conditions" },
-    black: { npk: "18-46-0", application: "20-25 kg/ha", advice: "Add potassium separately if needed" },
-    red: { npk: "16-20-0", application: "30-35 kg/ha", advice: "Supplement with micronutrients" }
-  },
-  maize: {
-    clay: { npk: "14-35-14", application: "30-35 kg/ha", advice: "Avoid waterlogging" },
-    sandy: { npk: "20-10-10", application: "45-50 kg/ha", advice: "Frequent irrigation needed" },
-    loamy: { npk: "15-15-15", application: "25-30 kg/ha", advice: "Ideal soil type for maize" },
-    black: { npk: "12-32-16", application: "30-35 kg/ha", advice: "Good choice for black soils" },
-    red: { npk: "14-35-14", application: "35-40 kg/ha", advice: "Add zinc supplements" }
-  },
-  cotton: {
-    clay: { npk: "20-10-10", application: "25-30 kg/ha", advice: "Ensure good drainage" },
-    sandy: { npk: "17-17-17", application: "35-40 kg/ha", advice: "Higher potassium may be beneficial" },
-    loamy: { npk: "14-35-14", application: "20-25 kg/ha", advice: "Apply in split doses" },
-    black: { npk: "16-20-0", application: "25-30 kg/ha", advice: "Particularly suited for cotton" },
-    red: { npk: "12-32-16", application: "30-35 kg/ha", advice: "Monitor pH levels" }
-  },
-  sugarcane: {
-    clay: { npk: "15-15-15", application: "40-45 kg/ha", advice: "Ensure good drainage systems" },
-    sandy: { npk: "14-35-14", application: "50-55 kg/ha", advice: "Increase organic matter" },
-    loamy: { npk: "20-10-10", application: "35-40 kg/ha", advice: "Optimal growth conditions" },
-    black: { npk: "17-17-17", application: "30-35 kg/ha", advice: "Good water retention" },
-    red: { npk: "18-46-0", application: "40-45 kg/ha", advice: "Add potassium separately" }
-  }
+  // ... keep existing code (fertilizerRecommendations)
 };
 
 export const FertilizerPredictionForm = () => {
   const [result, setResult] = useState<string>("");
-  const [detailedAdvice, setDetailedAdvice] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [detailedAdvice, setDetailedAdvice] = useState<string>("");
   
   const form = useForm<FertilizerFormData>({
     defaultValues: {
@@ -70,6 +36,17 @@ export const FertilizerPredictionForm = () => {
       cropType: ""
     }
   });
+
+  useEffect(() => {
+    const handleClimateData = (event: CustomEvent<{ temperature: number; humidity: number; rainfall: number }>) => {
+      form.setValue('moisture', event.detail.humidity);
+    };
+
+    window.addEventListener('climate-data-update', handleClimateData as EventListener);
+    return () => {
+      window.removeEventListener('climate-data-update', handleClimateData as EventListener);
+    };
+  }, [form]);
 
   const onSubmit = async (data: FertilizerFormData) => {
     setLoading(true);

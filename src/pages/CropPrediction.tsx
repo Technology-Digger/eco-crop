@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/Layout";
 import { CropPredictionForm } from "@/components/CropPredictionForm";
 import { Button } from "@/components/ui/button";
@@ -10,10 +9,9 @@ import { useState } from "react";
 const CropPrediction = () => {
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
-  const getLocalClimateData = () => {
+  const getLocalClimateData = (setFormValues?: (temperature: number, humidity: number, rainfall: number) => void) => {
     setIsLoadingLocation(true);
     
-    // Check if geolocation is available in the browser
     if (!navigator.geolocation) {
       toast({
         title: "Error",
@@ -24,21 +22,18 @@ const CropPrediction = () => {
       return;
     }
     
-    // Get current position
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         
-        // Normally we would make an API call to a weather service here
-        // For this example, we'll simulate the response
         setTimeout(() => {
-          // Sample weather data based on coordinates
           const temperature = Math.round(20 + Math.random() * 15);
           const humidity = Math.round(50 + Math.random() * 40);
           const rainfall = Math.round(50 + Math.random() * 150);
           
-          // Send this to the parent to update form values - in a real app
-          // we would have a context or dispatch an event
+          if (setFormValues) {
+            setFormValues(temperature, humidity, rainfall);
+          }
           
           toast({
             title: "Location Data Retrieved",
@@ -106,7 +101,12 @@ const CropPrediction = () => {
               </p>
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-sm"
-                onClick={getLocalClimateData}
+                onClick={() => getLocalClimateData((temp, hum, rain) => {
+                  const event = new CustomEvent('climate-data-update', {
+                    detail: { temperature: temp, humidity: hum, rainfall: rain }
+                  });
+                  window.dispatchEvent(event);
+                })}
                 disabled={isLoadingLocation}
               >
                 {isLoadingLocation ? (

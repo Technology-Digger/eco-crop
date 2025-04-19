@@ -2,6 +2,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Leaf, Beaker, MapPin, Info, TrendingUp, Cloud, DropletIcon, LineChart, Sprout, Wind } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 export const Dashboard = () => {
   const handleGetLocation = () => {
