@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
 import { useForm } from "react-hook-form";
-import { Thermometer, Droplet, Leaf, Beaker, Check, Zap, FlaskConical, Plant, PlaneTakeoff } from "lucide-react";
+import { Thermometer, Droplet, Leaf, Beaker, Check, Zap, FlaskConical, PlaneTakeoff } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { toast } from "@/hooks/use-toast";
 
@@ -18,7 +17,6 @@ interface FertilizerFormData {
   moisture: number;
 }
 
-// Sample fertilizer recommendations database
 const fertilizerRecommendations = {
   rice: {
     clay: { npk: "18-46-0", application: "25-30 kg/ha", advice: "Split application recommended" },
@@ -76,23 +74,19 @@ export const FertilizerPredictionForm = () => {
   const onSubmit = async (data: FertilizerFormData) => {
     setLoading(true);
     
-    // Simulate API delay
     setTimeout(() => {
       try {
-        // Get recommendation from our "database"
         const cropType = data.cropType as keyof typeof fertilizerRecommendations;
         const soilType = data.soilType as keyof typeof fertilizerRecommendations[keyof typeof fertilizerRecommendations];
         
         let recommendation: string;
         let advice: string = "";
         
-        // Check if we have a specific recommendation for this crop and soil type
         if (fertilizerRecommendations[cropType] && fertilizerRecommendations[cropType][soilType]) {
           const rec = fertilizerRecommendations[cropType][soilType];
           recommendation = `Based on your soil conditions and crop type (${cropType} in ${soilType} soil), we recommend using a ${rec.npk} NPK fertilizer at ${rec.application}.`;
           advice = rec.advice;
           
-          // Add custom advice based on nutrient levels
           if (data.nitrogen < 30) {
             advice += " Consider additional nitrogen supplementation for better growth.";
           } else if (data.nitrogen > 100) {
@@ -105,7 +99,6 @@ export const FertilizerPredictionForm = () => {
             advice += " Improve drainage to prevent root diseases.";
           }
         } else {
-          // Fallback recommendation based on nutrient levels
           const totalNutrients = data.nitrogen + data.phosphorus + data.potassium;
           
           if (totalNutrients < 50) {
@@ -224,7 +217,7 @@ export const FertilizerPredictionForm = () => {
               <div className="space-y-4">
                 <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-100 dark:border-purple-900/50">
                   <h3 className="text-md font-medium text-purple-800 dark:text-purple-400 mb-2 flex items-center">
-                    <Plant className="h-4 w-4 mr-2" />
+                    <Leaf className="h-4 w-4 mr-2" />
                     Crop Information
                   </h3>
                   <FormField
@@ -290,7 +283,6 @@ export const FertilizerPredictionForm = () => {
                       title: "Location Detected",
                       description: "Automatically filled climate data based on your location",
                     });
-                    // Simulate filling data based on geolocation
                     form.setValue("moisture", 45);
                   }}
                 >
