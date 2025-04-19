@@ -13,7 +13,7 @@ export const PredictionResult = ({ result }: PredictionResultProps) => {
       <div className="flex items-start gap-2">
         <Check className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
         <div>
-          <h4 className="font-medium text-green-800 dark:text-green-400 mb-1">Recommendation:</h4>
+          <h4 className="font-medium text-green-800 dark:text-green-400 mb-1">Example Recommendation:</h4>
           <p className="text-gray-700 dark:text-gray-300">{result}</p>
         </div>
       </div>
