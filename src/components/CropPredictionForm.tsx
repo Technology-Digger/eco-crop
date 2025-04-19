@@ -11,8 +11,6 @@ import { SoilNutrientsForm } from "./crop-prediction/SoilNutrientsForm";
 import { ClimateConditionsForm } from "./crop-prediction/ClimateConditionsForm";
 import { PredictionResult } from "./crop-prediction/PredictionResult";
 import { CropFormData } from "./crop-prediction/types";
-import { supabase, predictCrop } from "@/lib/supabase";
-import { useQuery, useMutation } from "@tanstack/react-query";
 
 export const CropPredictionForm = () => {
   const [result, setResult] = useState<string>("");
@@ -30,47 +28,34 @@ export const CropPredictionForm = () => {
     }
   });
 
-  const predictionMutation = useMutation({
-    mutationFn: async (data: CropFormData) => {
-      // First get the prediction from our ML model
-      const prediction = await predictCrop(data);
-      
-      // Then store the data and prediction in Supabase
-      const { data: savedData, error } = await supabase
-        .from('crop_predictions')
-        .insert([{
-          ...data,
-          predicted_crop: prediction.crop
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return savedData;
-    },
-    onSuccess: (data) => {
-      setResult(`Based on your soil and climate parameters, we recommend planting ${data.predicted_crop}.`);
-      toast({
-        title: "Analysis Complete",
-        description: "Your crop prediction has been processed successfully!",
-        variant: "default",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to process crop prediction. Please try again.",
-        variant: "destructive",
-      });
-    },
-    onSettled: () => {
-      setLoading(false);
-    }
-  });
-
   const onSubmit = async (data: CropFormData) => {
     setLoading(true);
-    predictionMutation.mutate(data);
+    
+    // Sample prediction logic
+    let recommendedCrop = "Unknown";
+    
+    // Basic sample prediction rules
+    if (data.nitrogen > 50 && data.temperature > 20 && data.humidity > 60) {
+      recommendedCrop = "Rice";
+    } else if (data.phosphorus > 40 && data.rainfall > 100) {
+      recommendedCrop = "Wheat";
+    } else if (data.potassium > 30 && data.ph > 6 && data.ph < 7.5) {
+      recommendedCrop = "Maize";
+    } else {
+      recommendedCrop = "Mixed Crops";
+    }
+
+    // Simulate a slight delay
+    setTimeout(() => {
+      setResult(`Based on your soil and climate parameters, we recommend planting ${recommendedCrop}.`);
+      setLoading(false);
+      
+      toast({
+        title: "Prediction Complete",
+        description: `Recommended crop: ${recommendedCrop}`,
+        variant: "default",
+      });
+    }, 1000);
   };
 
   return (

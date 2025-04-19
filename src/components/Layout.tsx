@@ -12,7 +12,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         </main>
         <footer className="border-t bg-white dark:bg-gray-900 dark:border-gray-800 py-6 transition-colors duration-200">
           <div className="container mx-auto px-4 text-center text-gray-500 dark:text-gray-400 text-sm">
-            <p>&copy; 2025 Eco Crop Advisor | Designed for Sustainable Agriculture 🌱</p>
+            <p>&copy; 2025 Eco Crop Advisor | Designed by A(n)esthetic Deployers 🌱</p>
           </div>
         </footer>
       </div>
