@@ -12,9 +12,24 @@ import { ClimateConditionsForm } from "./crop-prediction/ClimateConditionsForm";
 import { PredictionResult } from "./crop-prediction/PredictionResult";
 import { CropFormData } from "./crop-prediction/types";
 
+// Sample crop prediction database
+const cropDatabase = [
+  { crop: "Rice", nitrogen: 60, phosphorus: 40, potassium: 40, temperature: 23, humidity: 80, ph: 6.5, rainfall: 200 },
+  { crop: "Wheat", nitrogen: 40, phosphorus: 60, potassium: 30, temperature: 20, humidity: 60, ph: 7.0, rainfall: 100 },
+  { crop: "Maize", nitrogen: 40, phosphorus: 30, potassium: 40, temperature: 22, humidity: 50, ph: 6.8, rainfall: 80 },
+  { crop: "Cotton", nitrogen: 80, phosphorus: 30, potassium: 70, temperature: 25, humidity: 55, ph: 6.5, rainfall: 70 },
+  { crop: "Sugarcane", nitrogen: 90, phosphorus: 45, potassium: 80, temperature: 28, humidity: 70, ph: 6.3, rainfall: 150 },
+  { crop: "Barley", nitrogen: 35, phosphorus: 30, potassium: 25, temperature: 18, humidity: 45, ph: 6.8, rainfall: 60 },
+  { crop: "Sorghum", nitrogen: 30, phosphorus: 25, potassium: 40, temperature: 26, humidity: 40, ph: 5.8, rainfall: 55 },
+  { crop: "Soybean", nitrogen: 20, phosphorus: 35, potassium: 45, temperature: 23, humidity: 65, ph: 6.5, rainfall: 90 },
+  { crop: "Oats", nitrogen: 25, phosphorus: 30, potassium: 30, temperature: 17, humidity: 60, ph: 6.0, rainfall: 85 },
+  { crop: "Sunflower", nitrogen: 45, phosphorus: 50, potassium: 35, temperature: 24, humidity: 45, ph: 6.5, rainfall: 60 }
+];
+
 export const CropPredictionForm = () => {
   const [result, setResult] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [recommendations, setRecommendations] = useState<string[]>([]);
   
   const form = useForm<CropFormData>({
     defaultValues: {
@@ -28,34 +43,64 @@ export const CropPredictionForm = () => {
     }
   });
 
+  // Function to find similarity between input parameters and crop requirements
+  const calculateSimilarity = (input: CropFormData, crop: typeof cropDatabase[0]): number => {
+    // Calculate Euclidean distance between input and crop data points (simplified)
+    const nitrogenDiff = Math.abs(input.nitrogen - crop.nitrogen) / 100;
+    const phosphorusDiff = Math.abs(input.phosphorus - crop.phosphorus) / 100;
+    const potassiumDiff = Math.abs(input.potassium - crop.potassium) / 100;
+    const temperatureDiff = Math.abs(input.temperature - crop.temperature) / 30;
+    const humidityDiff = Math.abs(input.humidity - crop.humidity) / 100;
+    const phDiff = Math.abs(input.ph - crop.ph) / 14;
+    const rainfallDiff = Math.abs(input.rainfall - crop.rainfall) / 300;
+    
+    // Calculate weighted sum of differences
+    const totalDiff = 
+      nitrogenDiff * 0.2 + 
+      phosphorusDiff * 0.15 + 
+      potassiumDiff * 0.15 + 
+      temperatureDiff * 0.15 + 
+      humidityDiff * 0.1 + 
+      phDiff * 0.15 + 
+      rainfallDiff * 0.1;
+    
+    // Convert to similarity score (1 is perfect match, 0 is completely different)
+    return 1 - totalDiff;
+  };
+
   const onSubmit = async (data: CropFormData) => {
     setLoading(true);
+    setRecommendations([]);
     
-    // Sample prediction logic
-    let recommendedCrop = "Unknown";
-    
-    // Basic sample prediction rules
-    if (data.nitrogen > 50 && data.temperature > 20 && data.humidity > 60) {
-      recommendedCrop = "Rice";
-    } else if (data.phosphorus > 40 && data.rainfall > 100) {
-      recommendedCrop = "Wheat";
-    } else if (data.potassium > 30 && data.ph > 6 && data.ph < 7.5) {
-      recommendedCrop = "Maize";
-    } else {
-      recommendedCrop = "Mixed Crops";
-    }
-
-    // Simulate a slight delay
+    // Simulate API call delay
     setTimeout(() => {
-      setResult(`Based on your soil and climate parameters, we recommend planting ${recommendedCrop}.`);
+      // Calculate similarity scores for all crops
+      const cropScores = cropDatabase.map(crop => ({
+        crop: crop.crop,
+        score: calculateSimilarity(data, crop)
+      }));
+      
+      // Sort by similarity score (highest first)
+      cropScores.sort((a, b) => b.score - a.score);
+      
+      // Get top 3 recommendations
+      const topRecommendations = cropScores.slice(0, 3);
+      
+      // Format the results
+      const mainRecommendation = topRecommendations[0].crop;
+      const otherRecommendations = topRecommendations.slice(1).map(r => r.crop);
+      
+      setResult(`Based on your soil and climate parameters, we recommend planting ${mainRecommendation}.`);
+      setRecommendations(otherRecommendations);
       setLoading(false);
       
+      // Show success notification
       toast({
         title: "Prediction Complete",
-        description: `Recommended crop: ${recommendedCrop}`,
+        description: `Primary recommendation: ${mainRecommendation}`,
         variant: "default",
       });
-    }, 1000);
+    }, 1500); // Simulate network delay
   };
 
   return (
@@ -121,7 +166,7 @@ export const CropPredictionForm = () => {
           </form>
         </Form>
 
-        <PredictionResult result={result} />
+        <PredictionResult result={result} alternativeOptions={recommendations} />
       </CardContent>
     </Card>
   );
