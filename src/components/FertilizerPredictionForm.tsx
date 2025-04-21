@@ -17,8 +17,157 @@ interface FertilizerFormData {
   moisture: number;
 }
 
-const fertilizerRecommendations = {
-  // ... keep existing code (fertilizerRecommendations)
+interface FertilizerRecommendation {
+  npk: string;
+  application: string;
+  advice: string;
+}
+
+type SoilTypeKey = 'clay' | 'sandy' | 'loamy' | 'black' | 'red';
+type CropTypeKey = 'rice' | 'wheat' | 'maize' | 'cotton' | 'sugarcane';
+
+interface FertilizerRecommendations {
+  [key: string]: {
+    [key: string]: FertilizerRecommendation
+  }
+}
+
+const fertilizerRecommendations: FertilizerRecommendations = {
+  rice: {
+    clay: {
+      npk: "20-10-10",
+      application: "50 kg/ha",
+      advice: "Ensure proper water management."
+    },
+    sandy: {
+      npk: "15-15-15",
+      application: "60 kg/ha",
+      advice: "Apply in split doses."
+    },
+    loamy: {
+      npk: "18-12-12",
+      application: "55 kg/ha",
+      advice: "Monitor for pests and diseases."
+    },
+    black: {
+      npk: "20-10-10",
+      application: "50 kg/ha",
+      advice: "Ensure proper water management."
+    },
+    red: {
+      npk: "15-15-15",
+      application: "60 kg/ha",
+      advice: "Apply in split doses."
+    }
+  },
+  wheat: {
+    clay: {
+      npk: "15-15-15",
+      application: "45 kg/ha",
+      advice: "Check for fungal infections."
+    },
+    sandy: {
+      npk: "20-10-10",
+      application: "55 kg/ha",
+      advice: "Supplement with micronutrients."
+    },
+    loamy: {
+      npk: "18-12-12",
+      application: "50 kg/ha",
+      advice: "Ensure good soil aeration."
+    },
+    black: {
+      npk: "15-15-15",
+      application: "45 kg/ha",
+      advice: "Check for fungal infections."
+    },
+    red: {
+      npk: "20-10-10",
+      application: "55 kg/ha",
+      advice: "Supplement with micronutrients."
+    }
+  },
+  maize: {
+    clay: {
+      npk: "20-10-10",
+      application: "60 kg/ha",
+      advice: "Provide adequate zinc."
+    },
+    sandy: {
+      npk: "18-12-12",
+      application: "70 kg/ha",
+      advice: "Monitor for nitrogen deficiency."
+    },
+    loamy: {
+      npk: "20-10-10",
+      application: "65 kg/ha",
+      advice: "Ensure proper spacing."
+    },
+    black: {
+      npk: "20-10-10",
+      application: "60 kg/ha",
+      advice: "Provide adequate zinc."
+    },
+    red: {
+      npk: "18-12-12",
+      application: "70 kg/ha",
+      advice: "Monitor for nitrogen deficiency."
+    }
+  },
+  cotton: {
+    clay: {
+      npk: "18-12-12",
+      application: "50 kg/ha",
+      advice: "Control bollworms effectively."
+    },
+    sandy: {
+      npk: "20-10-10",
+      application: "60 kg/ha",
+      advice: "Manage whiteflies properly."
+    },
+    loamy: {
+      npk: "15-15-15",
+      application: "55 kg/ha",
+      advice: "Scout for sucking pests."
+    },
+    black: {
+      npk: "18-12-12",
+      application: "50 kg/ha",
+      advice: "Control bollworms effectively."
+    },
+    red: {
+      npk: "20-10-10",
+      application: "60 kg/ha",
+      advice: "Manage whiteflies properly."
+    }
+  },
+  sugarcane: {
+    clay: {
+      npk: "15-15-15",
+      application: "70 kg/ha",
+      advice: "Ensure proper drainage."
+    },
+    sandy: {
+      npk: "20-10-10",
+      application: "80 kg/ha",
+      advice: "Apply potash in multiple splits."
+    },
+    loamy: {
+      npk: "18-12-12",
+      application: "75 kg/ha",
+      advice: "Monitor for early shoot borer."
+    },
+    black: {
+      npk: "15-15-15",
+      application: "70 kg/ha",
+      advice: "Ensure proper drainage."
+    },
+    red: {
+      npk: "20-10-10",
+      application: "80 kg/ha",
+      advice: "Apply potash in multiple splits."
+    }
+  }
 };
 
 export const FertilizerPredictionForm = () => {
@@ -53,15 +202,18 @@ export const FertilizerPredictionForm = () => {
     
     setTimeout(() => {
       try {
-        const cropType = data.cropType as keyof typeof fertilizerRecommendations;
-        const soilType = data.soilType as keyof typeof fertilizerRecommendations[keyof typeof fertilizerRecommendations];
+        const cropType = data.cropType;
+        const soilType = data.soilType;
         
         let recommendation: string;
         let advice: string = "";
         
-        if (fertilizerRecommendations[cropType] && fertilizerRecommendations[cropType][soilType]) {
+        if (
+          fertilizerRecommendations[cropType] && 
+          fertilizerRecommendations[cropType][soilType]
+        ) {
           const rec = fertilizerRecommendations[cropType][soilType];
-          recommendation = `Based on your soil conditions and crop type (${cropType} in ${soilType} soil), we recommend using a ${rec.npk} NPK fertilizer at ${rec.application}.`;
+          recommendation = `Based on your soil conditions and crop type (${String(cropType)} in ${soilType} soil), we recommend using a ${rec.npk} NPK fertilizer at ${rec.application}.`;
           advice = rec.advice;
           
           if (data.nitrogen < 30) {
