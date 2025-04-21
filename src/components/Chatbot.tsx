@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { MessageCircle, Send } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 
@@ -49,12 +50,28 @@ const knowledgeBase = [
   }
 ];
 
+// Helper function to simulate an AI response
+const simulateAIResponse = (userMessage) => {
+  // Create responses for general questions
+  const generalResponses = [
+    `That's an interesting question about "${userMessage}". While I don't have specific data on this exact topic, I can tell you that this relates to various factors worth considering. Can you provide more details about what you'd like to know?`,
+    `Thanks for asking about "${userMessage}". This is a fascinating area with ongoing developments. From what I understand, there are multiple perspectives on this topic. Is there a specific aspect you're most interested in?`,
+    `Your question about "${userMessage}" touches on important concepts. While I don't have comprehensive information on this specific query, I'd be happy to discuss what I do know or guide you to resources that might help.`,
+    `Regarding "${userMessage}", there are several approaches to consider. The best answer often depends on your specific context and goals. Could you share more about your situation?`,
+    `I understand you're asking about "${userMessage}". This is an evolving field with new research emerging regularly. While I can provide some general insights, specific details might require specialized knowledge.`
+  ];
+  
+  // For demo purposes, we'll return a random general response
+  return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+};
+
 export function Chatbot() {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const findRelevantResponse = (question: string) => {
     // Convert input to lowercase for case-insensitive matching
@@ -90,8 +107,9 @@ export function Chatbot() {
         return knowledgeResponse;
       }
 
-      // For general questions, we'll use an external AI service
-      // This is a simulated call - in a real implementation, you would call an actual AI API
+      // Since we're simulating the API call, let's just use our simulation function
+      // In a real implementation, you would uncomment and use the API call below
+      /*
       const response = await fetch("https://api.example.com/ai-assistant", {
         method: "POST",
         headers: {
@@ -103,25 +121,21 @@ export function Chatbot() {
         }),
       });
 
-      // Simulate a delay and response when API is not available
       if (!response.ok) {
-        // Simple simulation of a general response for demo purposes
-        const generalResponses = [
-          "That's an interesting question! While I specialize in agricultural topics, I can try to help with general information too. Based on my knowledge, " + userMessage.split(" ").slice(0, 3).join(" ") + " relates to various factors you might want to consider.",
-          "I understand you're asking about " + userMessage.split(" ").slice(0, 4).join(" ") + ". While I focus on farming topics, this appears to be outside my primary expertise. I'd recommend consulting a specialized resource for the most accurate information.",
-          "Great question! Though I'm primarily designed to help with agricultural topics, I can share that " + userMessage.split(" ").slice(0, 3).join(" ") + " is something many people are interested in learning more about.",
-          "I appreciate your curiosity! While my specialty is farming and crops, your question about " + userMessage.split(" ").slice(0, 3).join(" ") + " touches on broader topics that have many perspectives.",
-          "Thanks for asking! While I'm most knowledgeable about agricultural topics, I understand you're interested in " + userMessage.split(" ").slice(0, 4).join(" ") + ". This is a fascinating area with ongoing developments."
-        ];
-        
-        return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+        throw new Error("Failed to get response from AI service");
       }
 
       const data = await response.json();
       return data.response;
+      */
+      
+      // For now, use our simulation function instead of the actual API call
+      return simulateAIResponse(userMessage);
+      
     } catch (error) {
-      console.error("Error fetching AI response:", error);
-      return "I'm having trouble connecting to my knowledge source right now. For the most accurate assistance with farming questions, please try our Crop Prediction or Fertilizer Recommendation tools. Is there a specific farming topic I can help with?";
+      console.error("Error in AI response:", error);
+      // Provide a graceful fallback response
+      return "I apologize for the inconvenience. I'm currently having trouble processing your request. Please try asking another question or check back later.";
     }
   };
 
@@ -129,12 +143,12 @@ export function Chatbot() {
     if (!input.trim()) return;
     
     // Add user message
+    const userMessage = input.trim();
     setMessages((m) => [
       ...m,
-      { from: "user", text: input.trim() },
+      { from: "user", text: userMessage },
     ]);
     
-    const userMessage = input.trim();
     setInput("");
     setLoading(true);
     
@@ -155,12 +169,37 @@ export function Chatbot() {
       });
     } finally {
       setLoading(false);
+      // Focus back on the input after sending
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     }
   };
 
   useEffect(() => {
+    // Scroll to bottom whenever messages change
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // Adjust textarea height as user types
+  const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    setInput(textarea.value);
+    
+    // Reset height to auto to calculate the new height
+    textarea.style.height = 'auto';
+    
+    // Set the new height based on scrollHeight (plus a small buffer)
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Send message on Enter key (without Shift)
+    if (e.key === 'Enter' && !e.shiftKey && !loading) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   const ChatContent = () => (
     <div className="w-full bg-white dark:bg-gray-900 rounded-xl shadow-sm border p-4 animate-fade-in">
@@ -201,14 +240,17 @@ export function Chatbot() {
           sendMessage();
         }}
       >
-        <Input
+        <Textarea
+          ref={inputRef}
           value={input}
+          onChange={handleTextareaInput}
+          onKeyDown={handleKeyDown}
           disabled={loading}
-          onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          className="flex-1"
+          className="flex-1 min-h-[40px] max-h-[150px] resize-none"
+          style={{ height: 'auto' }}
         />
-        <Button type="submit" disabled={loading || !input.trim()}>
+        <Button type="submit" disabled={loading || !input.trim()} className="self-end">
           <Send className="h-4 w-4 mr-2" />
           Send
         </Button>
