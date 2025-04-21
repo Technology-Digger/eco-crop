@@ -1,13 +1,15 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Send } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { toast } from "@/hooks/use-toast";
+import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 
 const initialMessages = [
   {
     from: "bot",
-    text: "Hello! 👋 I'm your 24/7 Eco Crop Advisor assistant. How can I help you today?",
+    text: "Hello! 👋 I'm your 24/7 Eco Crop Advisor assistant. I can help with farming questions or any other topics you're curious about. How can I assist you today?",
   },
 ];
 
@@ -51,6 +53,7 @@ export function Chatbot() {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const findRelevantResponse = (question: string) => {
@@ -75,19 +78,51 @@ export function Chatbot() {
       return bestMatch.entry.response;
     }
     
-    // Generic response for no matches
-    return "I don't have specific information about that topic yet. For the most accurate assistance, please try our Crop Prediction or Fertilizer Recommendation tools, or browse our knowledge sections on Soil Health and Sustainable Farming. Is there something else I can help with?";
+    // For questions not in our knowledge base, we'll use a general AI response
+    return null;
   };
 
-  const simulateAIResponse = async (msg: string) => {
-    setLoading(true);
-    
-    return new Promise<string>((resolve) => {
-      setTimeout(() => {
-        const response = findRelevantResponse(msg);
-        resolve(response);
-      }, 1200);
-    });
+  const fetchAIResponse = async (userMessage: string) => {
+    try {
+      // First check our knowledge base for farming-specific questions
+      const knowledgeResponse = findRelevantResponse(userMessage);
+      if (knowledgeResponse) {
+        return knowledgeResponse;
+      }
+
+      // For general questions, we'll use an external AI service
+      // This is a simulated call - in a real implementation, you would call an actual AI API
+      const response = await fetch("https://api.example.com/ai-assistant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          context: "eco-farming assistant",
+        }),
+      });
+
+      // Simulate a delay and response when API is not available
+      if (!response.ok) {
+        // Simple simulation of a general response for demo purposes
+        const generalResponses = [
+          "That's an interesting question! While I specialize in agricultural topics, I can try to help with general information too. Based on my knowledge, " + userMessage.split(" ").slice(0, 3).join(" ") + " relates to various factors you might want to consider.",
+          "I understand you're asking about " + userMessage.split(" ").slice(0, 4).join(" ") + ". While I focus on farming topics, this appears to be outside my primary expertise. I'd recommend consulting a specialized resource for the most accurate information.",
+          "Great question! Though I'm primarily designed to help with agricultural topics, I can share that " + userMessage.split(" ").slice(0, 3).join(" ") + " is something many people are interested in learning more about.",
+          "I appreciate your curiosity! While my specialty is farming and crops, your question about " + userMessage.split(" ").slice(0, 3).join(" ") + " touches on broader topics that have many perspectives.",
+          "Thanks for asking! While I'm most knowledgeable about agricultural topics, I understand you're interested in " + userMessage.split(" ").slice(0, 4).join(" ") + ". This is a fascinating area with ongoing developments."
+        ];
+        
+        return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+      }
+
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+      return "I'm having trouble connecting to my knowledge source right now. For the most accurate assistance with farming questions, please try our Crop Prediction or Fertilizer Recommendation tools. Is there a specific farming topic I can help with?";
+    }
   };
 
   const sendMessage = async () => {
@@ -101,24 +136,34 @@ export function Chatbot() {
     
     const userMessage = input.trim();
     setInput("");
+    setLoading(true);
     
-    // Get AI response
-    const response = await simulateAIResponse(userMessage);
-    
-    setMessages((m) => [
-      ...m,
-      { from: "bot", text: response },
-    ]);
-    
-    setLoading(false);
+    try {
+      // Get AI response
+      const response = await fetchAIResponse(userMessage);
+      
+      setMessages((m) => [
+        ...m,
+        { from: "bot", text: response },
+      ]);
+    } catch (error) {
+      console.error("Error in chat:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get a response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  return (
-    <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-lg border p-4 animate-fade-in">
+  const ChatContent = () => (
+    <div className="w-full bg-white dark:bg-gray-900 rounded-xl shadow-sm border p-4 animate-fade-in">
       <div className="flex items-center gap-2 mb-3">
         <MessageCircle className="text-green-600 dark:text-green-400" />
         <h3 className="font-semibold text-lg">24/7 Customer Support</h3>
@@ -164,9 +209,34 @@ export function Chatbot() {
           className="flex-1"
         />
         <Button type="submit" disabled={loading || !input.trim()}>
+          <Send className="h-4 w-4 mr-2" />
           Send
         </Button>
       </form>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile view: Drawer */}
+      <div className="md:hidden">
+        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+          <DrawerTrigger asChild>
+            <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              <span>Chat with Assistant</span>
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="p-4">
+            <ChatContent />
+          </DrawerContent>
+        </Drawer>
+      </div>
+      
+      {/* Desktop view: Direct component */}
+      <div className="hidden md:block max-w-md">
+        <ChatContent />
+      </div>
+    </>
   );
 }
