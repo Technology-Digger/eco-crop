@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
 import { useForm } from "react-hook-form";
-import { Thermometer, Droplet, Leaf, Beaker, Check, Zap, FlaskConical, PlaneTakeoff } from "lucide-react";
+import { Thermometer, Droplet, Leaf, Beaker, Check, Zap, FlaskConical } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { toast } from "@/hooks/use-toast";
 
@@ -402,22 +402,6 @@ export const FertilizerPredictionForm = () => {
                     )}
                   />
                 </div>
-
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  className="w-full border-indigo-200 dark:border-indigo-900/50 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-2"
-                  onClick={() => {
-                    toast({
-                      title: "Location Detected",
-                      description: "Automatically filled climate data based on your location",
-                    });
-                    form.setValue("moisture", 45);
-                  }}
-                >
-                  <PlaneTakeoff className="h-4 w-4" />
-                  Detect Location & Fill Climate Data
-                </Button>
               </div>
             </div>
 
