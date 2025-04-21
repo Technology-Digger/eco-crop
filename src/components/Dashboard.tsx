@@ -3,6 +3,8 @@ import { Card, CardContent } from "./ui/card";
 import { Leaf, Beaker, MapPin, Info, TrendingUp, Cloud, DropletIcon, LineChart, Sprout, Wind } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { Chatbot } from "./Chatbot";
+import { FeedbackSection } from "./FeedbackSection";
 
 export const Dashboard = () => {
   const handleGetLocation = () => {
@@ -176,6 +178,11 @@ export const Dashboard = () => {
             Enable Geolocation
           </Button>
         </div>
+      </div>
+      
+      <div className="grid md:grid-cols-2 gap-6 mt-4">
+        <Chatbot />
+        <FeedbackSection />
       </div>
     </div>
   );
